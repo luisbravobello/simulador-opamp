@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpAmp Lab — Simulador de Circuitos Activos | Módulo 2</title>
+  <meta name="description" content="Simulador interactivo de circuitos integradores, diferenciadores y filtros activos con amplificadores operacionales. Módulo 2 Actividad Experimental." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       PANTALLA DE CARGA
+  ════════════════════════════════════════════════ -->
+  <div id="loader-overlay" class="loader-overlay" aria-live="polite">
+    <div class="loader-card">
+
+      <!-- Logo animado -->
+      <div class="loader-logo">
+        <div class="loader-icon-ring">
+          <svg class="loader-svg" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="34" stroke="#e5e7eb" stroke-width="4"/>
+            <circle cx="40" cy="40" r="34" stroke="#0a0a0a" stroke-width="4"
+              stroke-dasharray="213" stroke-dashoffset="213"
+              id="loader-ring" stroke-linecap="round"/>
+          </svg>
+          <span class="loader-bolt">⚡</span>
+        </div>
+        <div>
+          <h1 class="loader-title">OpAmp Lab</h1>
+          <p class="loader-subtitle">Simulador de Circuitos Activos</p>
+        </div>
+      </div>
+
+      <!-- Pasos de carga -->
+      <div class="loader-steps">
+        <div class="loader-step" id="ls-1">
+          <span class="ls-icon" id="ls-icon-1">○</span>
+          <span class="ls-text">Inicializando motor de simulación…</span>
+        </div>
+        <div class="loader-step" id="ls-2">
+          <span class="ls-icon" id="ls-icon-2">○</span>
+          <span class="ls-text">Cargando circuito integrador…</span>
+        </div>
+        <div class="loader-step" id="ls-3">
+          <span class="ls-icon" id="ls-icon-3">○</span>
+          <span class="ls-text">Preparando circuito diferenciador…</span>
+        </div>
+        <div class="loader-step" id="ls-4">
+          <span class="ls-icon" id="ls-icon-4">○</span>
+          <span class="ls-text">Generando diagramas de Bode…</span>
+        </div>
+        <div class="loader-step" id="ls-5">
+          <span class="ls-icon" id="ls-icon-5">○</span>
+          <span class="ls-text">Configurando filtro Sallen-Key…</span>
+        </div>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="loader-bar-wrap">
+        <div class="loader-bar-track">
+          <div class="loader-bar-fill" id="loader-bar"></div>
+        </div>
+        <span class="loader-pct" id="loader-pct">0%</span>
+      </div>
+
+      <p class="loader-hint">Módulo 2 · Actividad Experimental</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       HEADER
+  ════════════════════════════════════════════════ -->
+  <header class="header" id="app-header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon-wrap">
+          <span class="logo-icon">⚡</span>
+        </div>
+        <div>
+          <h1 class="logo-title">OpAmp Lab</h1>
+          <p class="logo-subtitle">Simulador de Circuitos Activos</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="badge">Módulo 2 · Experimental</span>
+        <div class="header-dots">
+          <span class="hd red"></span>
+          <span class="hd yellow"></span>
+          <span class="hd green"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════
+       NAVIGATION TABS
+  ════════════════════════════════════════════════ -->
+  <nav class="tab-nav" id="tabNav">
+    <div class="tab-track">
+      <button class="tab-btn active" data-tab="step1" id="tab-step1">
+        <span class="tab-icon">∫</span>
+        <span class="tab-label">Paso 1</span>
+        <span class="tab-sub">Integrador</span>
+      </button>
+      <button class="tab-btn" data-tab="step2" id="tab-step2">
+        <span class="tab-icon">d/dt</span>
+        <span class="tab-label">Paso 2</span>
+        <span class="tab-sub">Diferenciador</span>
+      </button>
+      <button class="tab-btn" data-tab="step3" id="tab-step3">
+        <span class="tab-icon">~</span>
+        <span class="tab-label">Paso 3</span>
+        <span class="tab-sub">Filtros 1°</span>
+      </button>
+      <button class="tab-btn" data-tab="step4" id="tab-step4">
+        <span class="tab-icon">∿</span>
+        <span class="tab-label">Paso 4</span>
+        <span class="tab-sub">Sallen-Key</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ══ PASO 1: INTEGRADOR ══ -->
+    <section class="step-panel active" id="step1">
+      <div class="step-header">
+        <div class="step-pill">Paso 01</div>
+        <div class="step-heading">
+          <h2 class="step-title">Circuito Integrador con Op-Amp</h2>
+          <p class="step-desc">Entrada: Onda cuadrada &rarr; Salida esperada: Onda triangular</p>
+        </div>
+      </div>
+
+      <div class="circuit-diagram-wrap">
+        <canvas id="circuit1" class="circuit-canvas" width="700" height="190"></canvas>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls-panel">
+          <h3 class="controls-title">Parámetros</h3>
+
+          <div class="control-group">
+            <label class="ctrl-label">Resistencia R <span class="ctrl-value" id="r1-val">10 kΩ</span></label>
+            <input type="range" class="slider" id="r1" min="1" max="100" value="10" step="1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Capacitancia C <span class="ctrl-value" id="c1-val">1.0 µF</span></label>
+            <input type="range" class="slider" id="c1" min="0.1" max="10" value="1" step="0.1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Frecuencia entrada <span class="ctrl-value" id="f1-val">100 Hz</span></label>
+            <input type="range" class="slider" id="f1" min="10" max="1000" value="100" step="10" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Amplitud V<sub>in</sub> <span class="ctrl-value" id="a1-val">5.0 V</span></label>
+            <input type="range" class="slider" id="a1" min="0.5" max="12" value="5" step="0.5" />
+          </div>
+
+          <div class="info-box">
+            <div class="info-row"><span>Constante de tiempo τ</span><span class="info-val" id="tau1">—</span></div>
+            <div class="info-row"><span>Ganancia |H| = 1/ωRC</span><span class="info-val" id="gain1">—</span></div>
+            <div class="info-row"><span>Amplitud V<sub>out</sub> teórica</span><span class="info-val" id="vout1-amp">—</span></div>
+          </div>
+
+          <div class="formula-box">
+            <p class="formula-title">Función de Transferencia</p>
+            <p class="formula">H(jω) = −1 / (jωRC)</p>
+            <p class="formula-sub">V<sub>out</sub> = −1/RC · ∫V<sub>in</sub> dt</p>
+          </div>
+        </aside>
+
+        <div class="waveform-section">
+          <div class="wave-controls">
+            <button class="btn-primary" id="play1" onclick="togglePlay(1)">▶ Animado</button>
+            <button class="btn-secondary" onclick="resetSim(1)">↺ Reiniciar</button>
+            <div class="legend">
+              <span class="legend-item"><span class="dot" style="background:#2563eb"></span>V<sub>in</sub></span>
+              <span class="legend-item"><span class="dot" style="background:#dc2626"></span>V<sub>out</sub></span>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="wave1" class="wave-canvas"></canvas>
+          </div>
+          <div class="axis-labels"><span>Tiempo →</span><span>Tensión (V)</span></div>
+          <div class="observation-box">
+            <h4>📋 Observación</h4>
+            <p>La onda cuadrada de entrada es <strong>integrada</strong> por el circuito RC con retroalimentación negativa, produciendo una onda triangular cuya pendiente es proporcional a la amplitud de entrada dividida por τ = RC. A mayor τ, menor la amplitud de salida.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PASO 2: DIFERENCIADOR ══ -->
+    <section class="step-panel" id="step2">
+      <div class="step-header">
+        <div class="step-pill">Paso 02</div>
+        <div class="step-heading">
+          <h2 class="step-title">Circuito Diferenciador con Op-Amp</h2>
+          <p class="step-desc">Entrada: Onda triangular &rarr; Salida esperada: Onda cuadrada + efecto del ruido</p>
+        </div>
+      </div>
+
+      <div class="circuit-diagram-wrap">
+        <canvas id="circuit2" class="circuit-canvas" width="700" height="190"></canvas>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls-panel">
+          <h3 class="controls-title">Parámetros</h3>
+          <div class="control-group">
+            <label class="ctrl-label">Resistencia R <span class="ctrl-value" id="r2-val">10 kΩ</span></label>
+            <input type="range" class="slider" id="r2" min="1" max="100" value="10" step="1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Capacitancia C <span class="ctrl-value" id="c2-val">1.0 µF</span></label>
+            <input type="range" class="slider" id="c2" min="0.1" max="10" value="1" step="0.1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Frecuencia entrada <span class="ctrl-value" id="f2-val">100 Hz</span></label>
+            <input type="range" class="slider" id="f2" min="10" max="1000" value="100" step="10" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Amplitud V<sub>in</sub> <span class="ctrl-value" id="a2-val">5.0 V</span></label>
+            <input type="range" class="slider" id="a2" min="0.5" max="12" value="5" step="0.5" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">
+              Nivel de Ruido
+              <span class="ctrl-value noise-val" id="noise2-val">0%</span>
+            </label>
+            <input type="range" class="slider slider-noise" id="noise2" min="0" max="100" value="0" step="5" />
+          </div>
+
+          <div class="info-box">
+            <div class="info-row"><span>Constante de tiempo τ</span><span class="info-val" id="tau2">—</span></div>
+            <div class="info-row"><span>Amplitud V<sub>out</sub></span><span class="info-val" id="vout2-amp">—</span></div>
+            <div class="info-row"><span>Frecuencia de cruce</span><span class="info-val" id="fcross2">—</span></div>
+          </div>
+
+          <div class="formula-box">
+            <p class="formula-title">Función de Transferencia</p>
+            <p class="formula">H(jω) = −jωRC</p>
+            <p class="formula-sub">V<sub>out</sub> = −RC · dV<sub>in</sub>/dt</p>
+          </div>
+        </aside>
+
+        <div class="waveform-section">
+          <div class="wave-controls">
+            <button class="btn-primary" id="play2" onclick="togglePlay(2)">▶ Animado</button>
+            <button class="btn-secondary" onclick="resetSim(2)">↺ Reiniciar</button>
+            <div class="legend">
+              <span class="legend-item"><span class="dot" style="background:#2563eb"></span>V<sub>in</sub></span>
+              <span class="legend-item"><span class="dot" style="background:#dc2626"></span>V<sub>out</sub> ideal</span>
+              <span class="legend-item"><span class="dot" style="background:#f59e0b"></span>V<sub>out</sub> + ruido</span>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="wave2" class="wave-canvas"></canvas>
+          </div>
+          <div class="axis-labels"><span>Tiempo →</span><span>Tensión (V)</span></div>
+          <div class="observation-box">
+            <h4>📋 Observación</h4>
+            <p>El diferenciador amplifica las altas frecuencias (H ∝ ω), por lo que el <strong>ruido de alta frecuencia</strong> es fuertemente amplificado en la salida. Sube el deslizador de ruido para ver cómo distorsiona la señal cuadrada ideal. En práctica se agrega una resistencia en serie con C para limitar esta ganancia.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PASO 3: FILTROS 1° ══ -->
+    <section class="step-panel" id="step3">
+      <div class="step-header">
+        <div class="step-pill">Paso 03</div>
+        <div class="step-heading">
+          <h2 class="step-title">Filtro Activo Pasa-Bajas 1.er Orden vs Filtro RC Pasivo</h2>
+          <p class="step-desc">Comparación de respuesta en frecuencia: Diagrama de Bode</p>
+        </div>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls-panel">
+          <h3 class="controls-title">Parámetros Compartidos</h3>
+          <div class="control-group">
+            <label class="ctrl-label">Resistencia R <span class="ctrl-value" id="r3-val">10 kΩ</span></label>
+            <input type="range" class="slider" id="r3" min="1" max="100" value="10" step="1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Capacitancia C <span class="ctrl-value" id="c3-val">1.0 µF</span></label>
+            <input type="range" class="slider" id="c3" min="0.1" max="10" value="1" step="0.1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Ganancia Op-Amp (K) <span class="ctrl-value" id="k3-val">2.0</span></label>
+            <input type="range" class="slider" id="k3" min="1" max="10" value="2" step="0.1" />
+          </div>
+
+          <div class="info-box">
+            <div class="info-row"><span>Frecuencia de corte f<sub>c</sub></span><span class="info-val" id="fc3">—</span></div>
+            <div class="info-row"><span>ω<sub>c</sub> = 1/RC</span><span class="info-val" id="wc3">—</span></div>
+            <div class="info-row"><span>Ganancia DC pasivo</span><span class="info-val">0 dB (×1)</span></div>
+            <div class="info-row"><span>Ganancia DC activo</span><span class="info-val" id="gaindc3">—</span></div>
+          </div>
+
+          <div class="formula-box">
+            <p class="formula-title">Función de Transferencia</p>
+            <p class="formula-sub"><strong>Pasivo:</strong> H = 1 / (1 + jω/ω<sub>c</sub>)</p>
+            <p class="formula-sub"><strong>Activo:</strong> H = K / (1 + jω/ω<sub>c</sub>)</p>
+            <p class="formula-sub">Pendiente: −20 dB/década</p>
+          </div>
+
+          <div class="control-group" style="margin-top:4px">
+            <label class="ctrl-label">Frecuencia de prueba <span class="ctrl-value" id="ftest3-val">100 Hz</span></label>
+            <input type="range" class="slider slider-probe" id="ftest3" min="1" max="4" value="2" step="0.01" />
+            <p class="ctrl-note">escala log: 10 Hz — 10 kHz</p>
+          </div>
+
+          <div class="info-box">
+            <div class="info-row"><span>|H| Pasivo</span><span class="info-val" id="mag-passive">—</span></div>
+            <div class="info-row"><span>|H| Activo</span><span class="info-val" id="mag-active">—</span></div>
+            <div class="info-row"><span>Fase pasivo</span><span class="info-val" id="phase-passive">—</span></div>
+          </div>
+        </aside>
+
+        <div class="waveform-section">
+          <div class="wave-controls">
+            <div class="legend">
+              <span class="legend-item"><span class="dot" style="background:#2563eb"></span>RC Pasivo</span>
+              <span class="legend-item"><span class="dot" style="background:#dc2626"></span>Activo (Op-Amp)</span>
+              <span class="legend-item"><span class="dot" style="background:#f59e0b"></span>Punto de prueba</span>
+            </div>
+          </div>
+          <div class="bode-label">Diagrama de Bode — Magnitud (dB)</div>
+          <div class="canvas-wrap" style="height:230px"><canvas id="bode3mag" class="wave-canvas"></canvas></div>
+          <div class="bode-label" style="margin-top:10px">Diagrama de Bode — Fase (°)</div>
+          <div class="canvas-wrap" style="height:160px"><canvas id="bode3phase" class="wave-canvas"></canvas></div>
+          <div class="observation-box">
+            <h4>📋 Observación</h4>
+            <p>Ambos filtros comparten la misma f<sub>c</sub> = 1/(2πRC) y la misma pendiente −20 dB/dec. La diferencia clave: el filtro activo amplifica en la banda de paso (ganancia DC = K) y tiene baja impedancia de salida. El pasivo tiene ganancia máxima de 0 dB.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PASO 4: SALLEN-KEY ══ -->
+    <section class="step-panel" id="step4">
+      <div class="step-header">
+        <div class="step-pill">Paso 04</div>
+        <div class="step-heading">
+          <h2 class="step-title">Filtro Activo 2.º Orden — Topología Sallen-Key</h2>
+          <p class="step-desc">Pasa-bajas o pasa-altas de 2.° orden. Determina la frecuencia de corte experimentalmente.</p>
+        </div>
+      </div>
+
+      <div class="circuit-diagram-wrap">
+        <canvas id="circuit4" class="circuit-canvas" width="720" height="210"></canvas>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls-panel">
+          <h3 class="controls-title">Parámetros</h3>
+
+          <div class="control-group">
+            <label class="ctrl-label">Tipo de filtro</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="sk-lp" onclick="setSKType('lp')">Pasa-Bajas</button>
+              <button class="toggle-btn" id="sk-hp" onclick="setSKType('hp')">Pasa-Altas</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="ctrl-label">R₁ <span class="ctrl-value" id="r4a-val">10 kΩ</span></label>
+            <input type="range" class="slider" id="r4a" min="1" max="100" value="10" step="1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">R₂ <span class="ctrl-value" id="r4b-val">10 kΩ</span></label>
+            <input type="range" class="slider" id="r4b" min="1" max="100" value="10" step="1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">C₁ <span class="ctrl-value" id="c4a-val">1.0 µF</span></label>
+            <input type="range" class="slider" id="c4a" min="0.1" max="10" value="1" step="0.1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">C₂ <span class="ctrl-value" id="c4b-val">1.0 µF</span></label>
+            <input type="range" class="slider" id="c4b" min="0.1" max="10" value="1" step="0.1" />
+          </div>
+          <div class="control-group">
+            <label class="ctrl-label">Factor de calidad Q <span class="ctrl-value" id="q4-val">0.707</span></label>
+            <input type="range" class="slider" id="q4" min="0.3" max="5" value="0.707" step="0.01" />
+          </div>
+
+          <div class="info-box">
+            <div class="info-row"><span>ω₀ = 1/√(R₁R₂C₁C₂)</span><span class="info-val" id="w0-sk">—</span></div>
+            <div class="info-row"><span>f<sub>c</sub> teórica</span><span class="info-val" id="fc4-theory">—</span></div>
+            <div class="info-row"><span>f<sub>c</sub> experimental (−3 dB)</span><span class="info-val" id="fc4-exp">—</span></div>
+            <div class="info-row"><span>Pendiente asintótica</span><span class="info-val">−40 dB/dec</span></div>
+          </div>
+
+          <div class="formula-box">
+            <p class="formula-title">Función de Transferencia (LP)</p>
+            <p class="formula">H(s) = ω₀² / (s² + ω₀/Q·s + ω₀²)</p>
+          </div>
+
+          <div class="control-group" style="margin-top:4px">
+            <label class="ctrl-label">🔍 Sonda de frecuencia <span class="ctrl-value" id="probe4-val">1 kHz</span></label>
+            <input type="range" class="slider slider-probe" id="probe4" min="1" max="5" value="3" step="0.01" />
+            <p class="ctrl-note">escala log: 10 Hz — 100 kHz</p>
+          </div>
+          <div class="info-box">
+            <div class="info-row"><span>Magnitud en sonda</span><span class="info-val" id="probe-mag">—</span></div>
+            <div class="info-row"><span>Fase en sonda</span><span class="info-val" id="probe-phase">—</span></div>
+          </div>
+        </aside>
+
+        <div class="waveform-section">
+          <div class="wave-controls">
+            <div class="legend">
+              <span class="legend-item"><span class="dot" style="background:#7c3aed"></span>Sallen-Key 2°</span>
+              <span class="legend-item"><span class="dot" style="background:#059669"></span>1° orden (ref.)</span>
+              <span class="legend-item"><span class="dot" style="background:#f59e0b"></span>Sonda</span>
+              <span class="legend-item"><span class="dot" style="background:#dc2626"></span>−3 dB</span>
+            </div>
+          </div>
+          <div class="bode-label">Diagrama de Bode — Magnitud (dB)</div>
+          <div class="canvas-wrap" style="height:300px"><canvas id="bode4mag" class="wave-canvas"></canvas></div>
+          <div class="observation-box">
+            <h4>📋 Observación</h4>
+            <p id="sk-obs">El filtro Sallen-Key de 2.° orden presenta una pendiente de <strong>−40 dB/década</strong>, el doble que 1° orden. Para Q = 0.707 (Butterworth) la respuesta es maximamente plana. Para Q &gt; 0.707 aparece un <strong>pico de resonancia</strong> cerca de f<sub>c</sub>. Usa la sonda para encontrar empíricamente el punto −3 dB.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">⚡ OpAmp Lab</span>
+      <span>Simulador Interactivo · Módulo 2: Actividad Experimental · HTML5 Canvas</span>
+    </div>
+  </footer>
+
+  <script src="simulator.js"></script>
+</body>
+</html>
